@@ -7,6 +7,7 @@ var PostSchema = Schema({
   post_id: {
     type: String
   },
+  shortcode: String,
   tag_id: String,
   tag_name: String,
   text: String,

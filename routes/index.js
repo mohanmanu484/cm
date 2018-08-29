@@ -1,5 +1,6 @@
 var express = require('express');
 const Post = require('../models/Post');
+const Queue = require('../models/Queue');
 const fs = require('fs');
 
 const Response = require('../models/Response')
@@ -27,6 +28,14 @@ router.get('/', function(req, res, next) {
     title: 'Express'
   });
 });
+
+var queue = new Queue();
+queue.add("hot");
+queue.add("music");
+queue.add("funny");
+queue.add("viral");
+queue.add("dubsmash");
+
 
 cron.schedule('0-59 * * * *', function() {
   fetchFromInstaAndinsert(null);
@@ -84,9 +93,14 @@ function fetchFromInstaAndinsert(res) {
       timeout: 5000 //response timeout
     }
   };
+  var val = queue.remove();
+  console.log(val);
+  queue.add(val);
 
   // direct way
-  client.get("https://www.instagram.com/explore/tags/cricket/?__a=1", args, function(data, response) {
+  var url = "https://www.instagram.com/explore/tags/" + val + "/?__a=1";
+  console.log("hitting " + url);
+  client.get(url, args, function(data, response) {
 
     //console.log(data);
     console.log(response);
@@ -139,6 +153,7 @@ function parseData(body) {
     console.log(post.postId);
     post.thumbnail_url = edge.node.thumbnail_src;
     post.is_video = edge.node.is_video;
+    post.shortcode = edge.node.shortcode;
     post.timestamp = edge.node.taken_at_timestamp;
     var caption = edge.node.edge_media_to_caption;
     var textEdges = edge.node.edge_media_to_caption.edges[0];
@@ -157,6 +172,7 @@ function parseData(body) {
     post.tag_name = body.graphql.hashtag.name;
     post.display_url = edge.node.display_url;
     post.post_id = edge.node.id;
+    post.shortcode = edge.node.shortcode;
     console.log(post.postId);
     post.thumbnail_url = edge.node.thumbnail_src;
     post.is_video = edge.node.is_video;
