@@ -177,7 +177,11 @@ function parseData(body) {
     post.thumbnail_url = edge.node.thumbnail_src;
     post.is_video = edge.node.is_video;
     post.timestamp = edge.node.taken_at_timestamp;
-    post.text = edge.node.edge_media_to_caption.edges[0].node.text;
+    var caption = edge.node.edge_media_to_caption;
+    var textEdges = edge.node.edge_media_to_caption.edges[0];
+    if (textEdges) {
+      post.text = textEdges.node.text;
+    }
     resp.push(post);
   });
   return resp;
