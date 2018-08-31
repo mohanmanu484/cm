@@ -35,6 +35,8 @@ queue.add("music");
 queue.add("funny");
 queue.add("viral");
 queue.add("dubsmash");
+queue.add("cricket");
+
 
 
 cron.schedule('0-59 * * * *', function() {
@@ -43,9 +45,20 @@ cron.schedule('0-59 * * * *', function() {
 
 router.get('/api/posts', function(req, res, next) {
 
-  var query = {};
+
   var limit = Number(req.query.limit) || 10;
   var offset = Number(req.query.offset) || 0;
+  var type = req.query.type;
+  var query = {};
+  if (type) {
+    var tagArr = JSON.parse(req.query.type);
+    query = {
+      "tag_name": {
+        $in: tagArr
+      }
+    };
+  }
+  console.log("query is " + type);
   var options = {
     sort: {
       timestamp: -1
@@ -60,17 +73,7 @@ router.get('/api/posts', function(req, res, next) {
   }).catch(function(err) {
     return res.json(new Response(null, err, 400));
   });
-
   return;
-
-
-
-  Post.find({}, function(err, resp) {
-    if (err) {
-      return res.json(new Response(null, err, 400));
-    }
-    res.json(new Response(resp, null, 200));
-  });
 });
 
 router.post('/api/posts', urlencodedParser, function(req, res) {
